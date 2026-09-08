@@ -15,10 +15,12 @@ import androidx.compose.ui.unit.dp
  * движение вверх превысило порог — жест забирается себе, и список не начинает
  * скроллиться вдогонку.
  */
-fun Modifier.swipeUpFromBottom(onTriggered: () -> Unit): Modifier = composed {
+fun Modifier.swipeUpFromBottom(enabled: Boolean = true, onTriggered: () -> Unit): Modifier = composed {
     val density = LocalDensity.current
     val zoneHeightPx = with(density) { TRIGGER_ZONE.toPx() }
     val thresholdPx = with(density) { TRIGGER_DISTANCE.toPx() }
+
+    if (!enabled) return@composed Modifier
 
     pointerInput(Unit) {
         awaitPointerEventScope {

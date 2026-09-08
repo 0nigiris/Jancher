@@ -106,6 +106,12 @@ class HomeViewModel(
         expandedGroupId.value = groupId
     }
 
+    /** Возврат в исходное состояние: поиск закрыт, все группы схлопнуты. */
+    fun resetToHome() {
+        searchQuery.value = null
+        expandedGroupId.value = null
+    }
+
     fun toggleFavorite(key: ComponentKey) {
         viewModelScope.launch { repository.toggleFavorite(key) }
     }

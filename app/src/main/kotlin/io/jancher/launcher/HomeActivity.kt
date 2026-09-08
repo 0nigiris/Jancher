@@ -3,6 +3,7 @@ package io.jancher.launcher
 import android.app.role.RoleManager
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.Intent as AndroidIntent
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -26,6 +27,8 @@ class HomeActivity : ComponentActivity() {
 
     private val container: AppContainer by lazy { (application as JancherApp).container }
 
+    private var viewModelRef: HomeViewModel? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
@@ -40,6 +43,7 @@ class HomeActivity : ComponentActivity() {
                     initializer { HomeViewModel(container.repository) }
                 },
             )
+            viewModelRef = viewModel
             val state by viewModel.uiState.collectAsStateWithLifecycle()
             val searchState by viewModel.searchState.collectAsStateWithLifecycle()
 
@@ -61,6 +65,16 @@ class HomeActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Активность помечена singleTask, поэтому повторное нажатие Home приходит
+     * сюда, а не создаёт новый экземпляр. Пользователь ждёт, что экран
+     * вернётся в исходное состояние — это главное назначение кнопки Home.
+     */
+    override fun onNewIntent(intent: AndroidIntent) {
+        super.onNewIntent(intent)
+        viewModelRef?.resetToHome()
     }
 
     /**

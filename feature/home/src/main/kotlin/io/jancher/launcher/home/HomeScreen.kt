@@ -1,5 +1,6 @@
 package io.jancher.launcher.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,9 +48,10 @@ fun HomeScreen(
 
     // Позиции заголовков групп в списке: рельсу нужно знать, куда прокручивать
     // после раскрытия. Пересчитывается только при изменении состава.
-    val headerIndices = remember(state.groups, state.expandedGroupId) {
+    val headerIndices = remember(state.groups, state.expandedGroupId, state.favorites.isEmpty()) {
         buildMap {
-            var index = HEADER_OFFSET
+            // Часы есть всегда, блок избранного — только когда он не пуст.
+            var index = if (state.favorites.isEmpty()) 1 else 2
             state.groups.forEach { composed ->
                 put(composed.group.id, index)
                 index++
@@ -58,10 +60,16 @@ fun HomeScreen(
         }
     }
 
+    // Для лаунчера «назад» — это не выход, а возврат к исходному состоянию
+    // главного экрана. Выходить некуда: это и есть корень системы.
+    BackHandler(enabled = searchState.active || state.expandedGroupId != null) {
+        if (searchState.active) onCloseSearch() else onExpandGroup(null)
+    }
+
     Box(
         modifier
             .fillMaxSize()
-            .swipeUpFromBottom(onOpenSearch),
+            .swipeUpFromBottom(enabled = !searchState.active, onTriggered = onOpenSearch),
     ) {
         LazyColumn(
             state = listState,
@@ -171,9 +179,6 @@ private fun GroupHeader(
         )
     }
 }
-
-/** Часы и избранное идут перед группами и занимают фиксированное число элементов. */
-private const val HEADER_OFFSET = 2
 
 /**
  * Рельс отодвинут от края: последние ~20dp экрана принадлежат системному

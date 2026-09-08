@@ -11,7 +11,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -38,7 +41,9 @@ fun AppRow(
 ) {
     val launcher = LocalAppLauncher.current
     val view = LocalView.current
-    var coordinates: LayoutCoordinates? = null
+    // remember обязателен: без него ссылка теряется при каждой рекомпозиции,
+    // и запуск изредка происходит без анимации от иконки.
+    var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     Row(
         modifier = modifier

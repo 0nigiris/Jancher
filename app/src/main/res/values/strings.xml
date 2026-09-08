@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Jancher</string>
-    <string name="home_placeholder_title">Jancher</string>
-    <string name="home_placeholder_subtitle">Фаза 0: лаунчер установлен</string>
 </resources>
