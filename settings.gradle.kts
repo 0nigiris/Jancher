@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,4 +22,10 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Jancher"
+
 include(":app")
+include(":core:model")
+include(":core:data")
+include(":core:platform")
+include(":core:designsystem")
+include(":feature:home")

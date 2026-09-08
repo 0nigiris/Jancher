@@ -2,8 +2,8 @@ package io.jancher.launcher
 
 import android.app.Application
 
-/**
- * Точка сборки зависимостей. Пока пустая — контейнер появится вместе с
- * первым источником данных (индекс приложений), а не заранее.
- */
-class JancherApp : Application()
+class JancherApp : Application() {
+
+    /** Создаётся лениво: до первого кадра контейнер не нужен. */
+    val container: AppContainer by lazy { AppContainer(this) }
+}

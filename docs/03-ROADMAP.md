@@ -8,12 +8,12 @@
 
 ## Фаза 0 — Инфраструктура (1 сессия)
 
-- [ ] Поставить JDK 21 (`sudo dnf install java-21-openjdk-devel`) — с JDK 25/26 Gradle/AGP не соберутся
-- [ ] Поставить `cmdline-tools`, принять лицензии SDK
-- [ ] Скелет проекта: Gradle version catalog, модули, Compose, R8, две сборки (debug/release)
-- [ ] `HomeActivity` с HOME-интентом; на экране — «Jancher работает»
-- [ ] Собрать APK и поставить на S23 Ultra через adb
-- [ ] `git init`, GPL-3.0, `TRADEMARK.md`, README
+- [x] Поставить JDK 21 (Temurin в `~/.local/jdk`, без root)
+- [x] Поставить `cmdline-tools`, принять лицензии SDK
+- [x] Скелет проекта: Gradle version catalog, Compose, R8, две сборки (debug/release)
+- [x] `HomeActivity` с HOME-интентом; на экране — «Jancher работает»
+- [x] Собрать подписанный APK и передать владельцу (adb не понадобился)
+- [x] `git init`, GPL-3.0, `TRADEMARK.md`, README
 
 **Готово, когда:** нажатие Home открывает наше пустое приложение и телефон при этом не превращается в кирпич (второй лаунчер остаётся установленным как запасной).
 

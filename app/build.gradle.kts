@@ -76,7 +76,15 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
+    implementation(project(":core:data"))
+    implementation(project(":core:platform"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":feature:home"))
+
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
@@ -87,3 +95,4 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+
