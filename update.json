@@ -1,0 +1,9 @@
+{
+  "versionCode": 3,
+  "versionName": "0.3.0",
+  "apkUrl": "https://github.com/0nigiris/Jancher/releases/download/v0.3.0/jancher-0.3.0.apk",
+  "sha256": "c5563625eef9a04fb8bfdeaea84499bdb5c01d2dfc942b08c54c19ef1ef9dcf2",
+  "sizeBytes": 2457741,
+  "notes": "Меню шорткатов по долгому нажатию, липкие заголовки групп",
+  "minVersionCode": 1
+}
