@@ -8,6 +8,8 @@ import io.jancher.launcher.data.LauncherRepository
 import io.jancher.launcher.model.App
 import io.jancher.launcher.model.ComponentKey
 import io.jancher.launcher.model.GroupRole
+import io.jancher.launcher.model.UpdateGateway
+import io.jancher.launcher.model.UpdateState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,11 @@ data class HomeUiState(
     val loaded: Boolean = false,
 )
 
+data class MenuUiState(
+    val app: App? = null,
+    val isFavorite: Boolean = false,
+)
+
 data class SearchUiState(
     val active: Boolean = false,
     val query: String = "",
@@ -32,10 +39,28 @@ data class SearchUiState(
 
 class HomeViewModel(
     private val repository: LauncherRepository,
+    private val updates: UpdateGateway,
 ) : ViewModel() {
+
+    val updateState: StateFlow<UpdateState> = updates.state
+
+    init {
+        // Проверка при каждом открытии лаунчера, но сам шлюз соблюдает
+        // интервал: лишних запросов не будет.
+        viewModelScope.launch { updates.checkIfDue() }
+    }
+
+    fun downloadUpdate() {
+        viewModelScope.launch { updates.download() }
+    }
+
+    fun installUpdate() = updates.install()
+
+    fun dismissUpdate() = updates.dismiss()
 
     private val expandedGroupId = MutableStateFlow<Long?>(null)
     private val searchQuery = MutableStateFlow<String?>(null)
+    private val menuFor = MutableStateFlow<ComponentKey?>(null)
 
     val uiState: StateFlow<HomeUiState> =
         combine(repository.state, expandedGroupId) { state, expanded ->
@@ -81,6 +106,33 @@ class HomeViewModel(
             initialValue = SearchUiState(),
         )
 
+    val menuState: StateFlow<MenuUiState> =
+        combine(repository.state, menuFor) { state, key ->
+            if (key == null) {
+                MenuUiState()
+            } else {
+                MenuUiState(
+                    app = state.allApps.firstOrNull { it.key == key },
+                    isFavorite = state.groups
+                        .firstOrNull { it.group.role == GroupRole.FAVORITES }
+                        ?.apps
+                        ?.any { it.key == key } == true,
+                )
+            }
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS),
+            initialValue = MenuUiState(),
+        )
+
+    fun openMenu(key: ComponentKey) {
+        menuFor.value = key
+    }
+
+    fun closeMenu() {
+        menuFor.value = null
+    }
+
     fun openSearch() {
         searchQuery.value = ""
     }
@@ -110,6 +162,7 @@ class HomeViewModel(
     fun resetToHome() {
         searchQuery.value = null
         expandedGroupId.value = null
+        menuFor.value = null
     }
 
     fun toggleFavorite(key: ComponentKey) {

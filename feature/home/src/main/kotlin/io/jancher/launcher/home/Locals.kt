@@ -3,6 +3,7 @@ package io.jancher.launcher.home
 import androidx.compose.runtime.staticCompositionLocalOf
 import io.jancher.launcher.platform.AppLauncher
 import io.jancher.launcher.platform.IconCache
+import io.jancher.launcher.platform.ShortcutSource
 
 /**
  * Кеш иконок и запуск приложений нужны почти в каждом элементе списка.
@@ -15,4 +16,8 @@ val LocalIconCache = staticCompositionLocalOf<IconCache> {
 
 val LocalAppLauncher = staticCompositionLocalOf<AppLauncher> {
     error("AppLauncher не предоставлен")
+}
+
+val LocalShortcutSource = staticCompositionLocalOf<ShortcutSource> {
+    error("ShortcutSource не предоставлен")
 }

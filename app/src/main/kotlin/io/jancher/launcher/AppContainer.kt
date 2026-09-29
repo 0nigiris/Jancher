@@ -7,6 +7,7 @@ import io.jancher.launcher.data.LauncherRepository
 import io.jancher.launcher.platform.AppLauncher
 import io.jancher.launcher.platform.IconCache
 import io.jancher.launcher.platform.InstalledAppsSource
+import io.jancher.launcher.platform.ShortcutSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,7 +29,19 @@ class AppContainer(context: Context) {
 
     val appLauncher = AppLauncher(appContext)
 
+    val shortcutSource = ShortcutSource(appContext)
+
     private val configStore = ConfigStore(appContext, scope)
+
+    /**
+     * Реализация зависит от варианта сборки: в play-сборке это заглушка,
+     * и модуль обновлений в APK не попадает.
+     */
+    val updates = createUpdateGateway(
+        context = appContext,
+        scope = scope,
+        versionCode = BuildConfig.VERSION_CODE,
+    )
 
     val repository = LauncherRepository(
         source = InstalledAppsSource(appContext),

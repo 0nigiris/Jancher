@@ -1,17 +1,18 @@
-*.iml
+# Сборочные артефакты
+build/
 .gradle/
-/local.properties
-/.idea/
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
-/app/build/
+.cxx/
 *.hprof
+/captures
 
-# Ключи подписи никогда не попадают в репозиторий
+# Локальные настройки окружения
+local.properties
+.idea/
+*.iml
+
+# Ключи подписи — никогда в репозиторий
 *.keystore
 *.jks
 keystore.properties
+
+.DS_Store

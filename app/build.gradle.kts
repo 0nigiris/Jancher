@@ -20,8 +20,8 @@ android {
         applicationId = "io.jancher.launcher"
         minSdk = 31
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
     }
 
     signingConfigs {
@@ -32,6 +32,24 @@ android {
                 keyAlias = keystoreProps.getProperty("keyAlias")
                 keyPassword = keystoreProps.getProperty("keyPassword")
             }
+        }
+    }
+
+    /**
+     * direct — сборка для прямой раздачи: умеет обновлять себя сама.
+     * play — сборка для Google Play: правила Play прямо запрещают приложению
+     * обновляться в обход Play, поэтому весь механизм в неё не попадает —
+     * ни кода, ни разрешений, а не «выключен настройкой».
+     */
+    flavorDimensions += "distribution"
+
+    productFlavors {
+        create("direct") {
+            dimension = "distribution"
+            isDefault = true
+        }
+        create("play") {
+            dimension = "distribution"
         }
     }
 
@@ -57,6 +75,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -77,6 +96,7 @@ android {
 
 dependencies {
     implementation(project(":core:model"))
+    "directImplementation"(project(":core:updater"))
     implementation(project(":core:data"))
     implementation(project(":core:platform"))
     implementation(project(":core:designsystem"))

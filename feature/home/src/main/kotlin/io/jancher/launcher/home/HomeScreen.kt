@@ -2,6 +2,7 @@ package io.jancher.launcher.home
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,8 +30,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.jancher.launcher.data.ComposedGroup
 import io.jancher.launcher.model.App
+import io.jancher.launcher.model.UpdateState
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     state: HomeUiState,
@@ -40,6 +44,14 @@ fun HomeScreen(
     onOpenSearch: () -> Unit,
     onQueryChange: (String) -> Unit,
     onCloseSearch: () -> Unit,
+    menuState: MenuUiState,
+    onCloseMenu: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onOpenAppInfo: () -> Unit,
+    updateState: UpdateState,
+    onDownloadUpdate: () -> Unit,
+    onInstallUpdate: () -> Unit,
+    onDismissUpdate: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -62,8 +74,14 @@ fun HomeScreen(
 
     // Для лаунчера «назад» — это не выход, а возврат к исходному состоянию
     // главного экрана. Выходить некуда: это и есть корень системы.
-    BackHandler(enabled = searchState.active || state.expandedGroupId != null) {
-        if (searchState.active) onCloseSearch() else onExpandGroup(null)
+    BackHandler(
+        enabled = searchState.active || menuState.app != null || state.expandedGroupId != null,
+    ) {
+        when {
+            menuState.app != null -> onCloseMenu()
+            searchState.active -> onCloseSearch()
+            else -> onExpandGroup(null)
+        }
     }
 
     Box(
@@ -95,7 +113,9 @@ fun HomeScreen(
             state.groups.forEach { composed ->
                 val expanded = composed.group.id == state.expandedGroupId
 
-                item(key = "group-${composed.group.id}") {
+                // Липкий заголовок: при прокрутке раскрытой группы видно,
+                // где ты находишься, — без этого длинный список теряет контекст.
+                stickyHeader(key = "group-${composed.group.id}") {
                     GroupHeader(
                         title = composed.group.title,
                         count = composed.apps.size,
@@ -133,6 +153,26 @@ fun HomeScreen(
                 .padding(end = RAIL_EDGE_INSET),
         )
 
+        menuState.app?.let { app ->
+            AppMenu(
+                app = app,
+                isFavorite = menuState.isFavorite,
+                onToggleFavorite = onToggleFavorite,
+                onOpenAppInfo = onOpenAppInfo,
+                onDismiss = onCloseMenu,
+            )
+        }
+
+        UpdateBanner(
+            state = updateState,
+            onDownload = onDownloadUpdate,
+            onInstall = onInstallUpdate,
+            onDismiss = onDismissUpdate,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .systemBarsPadding(),
+        )
+
         if (searchState.active) {
             SearchOverlay(
                 state = searchState,
@@ -166,6 +206,18 @@ private fun GroupHeader(
         Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            // Фон нужен только раскрытому заголовку: под ним прокручиваются
+            // строки приложений, и без подложки текст ложится на текст.
+            // Схлопнутым он не нужен — они просто вытесняют друг друга.
+            .then(
+                if (expanded) {
+                    Modifier.background(
+                        MaterialTheme.colorScheme.background.copy(alpha = STICKY_HEADER_ALPHA),
+                    )
+                } else {
+                    Modifier
+                },
+            )
             .padding(vertical = 10.dp),
     ) {
         Text(
@@ -179,6 +231,9 @@ private fun GroupHeader(
         )
     }
 }
+
+/** Раскрытому заголовку нужна подложка, но не глухая: обои должны просвечивать. */
+private const val STICKY_HEADER_ALPHA = 0.92f
 
 /**
  * Рельс отодвинут от края: последние ~20dp экрана принадлежат системному
