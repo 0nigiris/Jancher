@@ -1,9 +1,9 @@
 {
-  "versionCode": 3,
-  "versionName": "0.3.0",
-  "apkUrl": "https://github.com/0nigiris/Jancher/releases/download/v0.3.0/jancher-0.3.0.apk",
-  "sha256": "c5563625eef9a04fb8bfdeaea84499bdb5c01d2dfc942b08c54c19ef1ef9dcf2",
-  "sizeBytes": 2457741,
-  "notes": "Меню шорткатов по долгому нажатию, липкие заголовки групп",
+  "versionCode": 4,
+  "versionName": "0.3.1",
+  "apkUrl": "https://github.com/0nigiris/Jancher/releases/download/v0.3.1/jancher-0.3.1.apk",
+  "sha256": "feaaed081144d3e0232db673d331e89eb79c4274878cbf08274cf216d23488b9",
+  "sizeBytes": 2507221,
+  "notes": "Экран настроек: чёрный фон, проверка обновлений, лаунчер по умолчанию",
   "minVersionCode": 1
 }

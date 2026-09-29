@@ -89,6 +89,14 @@ android {
         }
     }
 
+    lint {
+        // lintVital в релизной сборке — это ещё один полный анализ поверх R8,
+        // и на этой машине он упирается в Metaspace. Проверки не отменяются:
+        // lint запускается отдельной задачей (./gradlew :app:lintDirectDebug),
+        // и её результат так же обязателен перед выпуском релиза.
+        checkReleaseBuilds = false
+    }
+
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
