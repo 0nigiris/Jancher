@@ -50,7 +50,7 @@ class HomeActivity : ComponentActivity() {
             val updateState by viewModel.updateState.collectAsStateWithLifecycle()
             val menuState by viewModel.menuState.collectAsStateWithLifecycle()
 
-            JancherTheme {
+            JancherTheme(trueBlack = state.settings.trueBlack) {
                 CompositionLocalProvider(
                     LocalIconCache provides container.iconCache,
                     LocalAppLauncher provides container.appLauncher,
@@ -77,6 +77,14 @@ class HomeActivity : ComponentActivity() {
                         onDownloadUpdate = viewModel::downloadUpdate,
                         onInstallUpdate = viewModel::installUpdate,
                         onDismissUpdate = viewModel::dismissUpdate,
+                        onOpenSettings = viewModel::openSettings,
+                        onCloseSettings = viewModel::closeSettings,
+                        onTrueBlackChange = viewModel::setTrueBlack,
+                        onRequestDefaultHome = ::requestDefaultHome,
+                        onCheckUpdates = { container.checkUpdatesNow() },
+                        isDefaultHome = isDefaultHome(),
+                        versionName = BuildConfig.VERSION_NAME,
+                        updatesSupported = container.updates.supported,
                     )
                 }
             }

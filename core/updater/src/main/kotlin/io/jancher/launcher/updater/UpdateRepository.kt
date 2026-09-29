@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import java.io.File
 
 /**
@@ -53,7 +52,9 @@ class UpdateRepository(
         check()
     }
 
-    suspend fun check() {
+    override suspend fun checkNow() = check()
+
+    private suspend fun check() {
         if (_state.value is UpdateState.Downloading) return
 
         _state.value = UpdateState.Checking
@@ -119,11 +120,6 @@ class UpdateRepository(
     override fun dismiss() {
         manifest?.let { prefs.edit().putInt(KEY_DISMISSED, it.versionCode).apply() }
         _state.value = UpdateState.Idle
-    }
-
-    /** Повторить проверку принудительно — для кнопки в настройках. */
-    fun checkNow() {
-        scope.launch { check() }
     }
 
     private fun openInstallPermissionSettings() {

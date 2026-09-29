@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import io.jancher.launcher.data.ComposedGroup
 import io.jancher.launcher.model.App
@@ -52,6 +54,14 @@ fun HomeScreen(
     onDownloadUpdate: () -> Unit,
     onInstallUpdate: () -> Unit,
     onDismissUpdate: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onCloseSettings: () -> Unit,
+    onTrueBlackChange: (Boolean) -> Unit,
+    onRequestDefaultHome: () -> Unit,
+    onCheckUpdates: () -> Unit,
+    isDefaultHome: Boolean,
+    versionName: String,
+    updatesSupported: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
@@ -75,9 +85,11 @@ fun HomeScreen(
     // Для лаунчера «назад» — это не выход, а возврат к исходному состоянию
     // главного экрана. Выходить некуда: это и есть корень системы.
     BackHandler(
-        enabled = searchState.active || menuState.app != null || state.expandedGroupId != null,
+        enabled = searchState.active || menuState.app != null ||
+            state.settingsOpen || state.expandedGroupId != null,
     ) {
         when {
+            state.settingsOpen -> onCloseSettings()
             menuState.app != null -> onCloseMenu()
             searchState.active -> onCloseSearch()
             else -> onExpandGroup(null)
@@ -87,7 +99,13 @@ fun HomeScreen(
     Box(
         modifier
             .fillMaxSize()
-            .swipeUpFromBottom(enabled = !searchState.active, onTriggered = onOpenSearch),
+            .swipeUpFromBottom(enabled = !searchState.active, onTriggered = onOpenSearch)
+            // Долгое нажатие по пустому месту — вход в настройки. Модификатор
+            // стоит на контейнере под списком, поэтому строки приложений
+            // забирают своё долгое нажатие раньше и меню не конфликтует.
+            .pointerInput(Unit) {
+                detectTapGestures(onLongPress = { onOpenSettings() })
+            },
     ) {
         LazyColumn(
             state = listState,
@@ -152,6 +170,19 @@ fun HomeScreen(
                 .systemBarsPadding()
                 .padding(end = RAIL_EDGE_INSET),
         )
+
+        if (state.settingsOpen) {
+            SettingsOverlay(
+                trueBlack = state.settings.trueBlack,
+                isDefaultHome = isDefaultHome,
+                versionName = versionName,
+                updatesSupported = updatesSupported,
+                onTrueBlackChange = onTrueBlackChange,
+                onRequestDefaultHome = onRequestDefaultHome,
+                onCheckUpdates = onCheckUpdates,
+                onDismiss = onCloseSettings,
+            )
+        }
 
         menuState.app?.let { app ->
             AppMenu(

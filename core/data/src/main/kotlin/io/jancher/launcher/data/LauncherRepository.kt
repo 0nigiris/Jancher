@@ -19,6 +19,7 @@ import java.util.Locale
 data class LauncherState(
     val groups: List<ComposedGroup>,
     val allApps: List<App>,
+    val settings: Settings = Settings(),
 )
 
 /**
@@ -37,6 +38,7 @@ class LauncherRepository(
             LauncherState(
                 groups = GroupComposer.compose(apps, effective.toGroups(), effective.toMembers()),
                 allApps = apps.sortedBy { it.displayLabel.lowercase() },
+                settings = effective.settings,
             )
         }.flowOn(Dispatchers.Default)
 
@@ -49,6 +51,10 @@ class LauncherRepository(
         store.update { current ->
             if (current.groups.isEmpty()) DefaultConfig.create(Locale.getDefault()) else current
         }
+    }
+
+    suspend fun setTrueBlack(enabled: Boolean) {
+        store.update { it.copy(settings = it.settings.copy(trueBlack = enabled)) }
     }
 
     suspend fun toggleFavorite(key: ComponentKey) {

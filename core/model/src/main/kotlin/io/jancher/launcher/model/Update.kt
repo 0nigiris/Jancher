@@ -59,6 +59,9 @@ interface UpdateGateway {
     /** Проверка с учётом интервала; вызывается при каждом открытии лаунчера. */
     suspend fun checkIfDue()
 
+    /** Проверка без учёта интервала — для кнопки в настройках. */
+    suspend fun checkNow()
+
     suspend fun download()
 
     fun install()

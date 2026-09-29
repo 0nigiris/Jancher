@@ -27,11 +27,22 @@ data class LauncherConfig(
     val members: List<MemberConfig> = emptyList(),
     val appPrefs: Map<String, AppPrefs> = emptyMap(),
     val nextGroupId: Long = 1L,
+    val settings: Settings = Settings(),
 ) {
     companion object {
         const val CURRENT_VERSION = 1
     }
 }
+
+@Serializable
+data class Settings(
+    /**
+     * Чистый чёрный фон вместо тёмно-серого. На AMOLED-экране такие пиксели
+     * буквально не светятся, но на LCD это выглядит грязно — поэтому
+     * настройка, а не поведение по умолчанию.
+     */
+    val trueBlack: Boolean = false,
+)
 
 @Serializable
 data class GroupConfig(

@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.jancher.launcher.data.AppMatcher
 import io.jancher.launcher.data.ComposedGroup
+import io.jancher.launcher.data.Settings
 import io.jancher.launcher.data.LauncherRepository
 import io.jancher.launcher.model.App
 import io.jancher.launcher.model.ComponentKey
@@ -24,6 +25,8 @@ data class HomeUiState(
     val groups: List<ComposedGroup> = emptyList(),
     val expandedGroupId: Long? = null,
     val loaded: Boolean = false,
+    val settings: Settings = Settings(),
+    val settingsOpen: Boolean = false,
 )
 
 data class MenuUiState(
@@ -61,9 +64,10 @@ class HomeViewModel(
     private val expandedGroupId = MutableStateFlow<Long?>(null)
     private val searchQuery = MutableStateFlow<String?>(null)
     private val menuFor = MutableStateFlow<ComponentKey?>(null)
+    private val settingsOpen = MutableStateFlow(false)
 
     val uiState: StateFlow<HomeUiState> =
-        combine(repository.state, expandedGroupId) { state, expanded ->
+        combine(repository.state, expandedGroupId, settingsOpen) { state, expanded, settings ->
             val favorites = state.groups
                 .firstOrNull { it.group.role == GroupRole.FAVORITES }
                 ?.apps
@@ -78,6 +82,8 @@ class HomeViewModel(
                 },
                 expandedGroupId = expanded,
                 loaded = true,
+                settings = state.settings,
+                settingsOpen = settings,
             )
         }.stateIn(
             scope = viewModelScope,
@@ -125,6 +131,18 @@ class HomeViewModel(
             initialValue = MenuUiState(),
         )
 
+    fun openSettings() {
+        settingsOpen.value = true
+    }
+
+    fun closeSettings() {
+        settingsOpen.value = false
+    }
+
+    fun setTrueBlack(enabled: Boolean) {
+        viewModelScope.launch { repository.setTrueBlack(enabled) }
+    }
+
     fun openMenu(key: ComponentKey) {
         menuFor.value = key
     }
@@ -163,6 +181,7 @@ class HomeViewModel(
         searchQuery.value = null
         expandedGroupId.value = null
         menuFor.value = null
+        settingsOpen.value = false
     }
 
     fun toggleFavorite(key: ComponentKey) {

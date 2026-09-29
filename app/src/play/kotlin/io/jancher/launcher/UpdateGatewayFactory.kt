@@ -21,6 +21,7 @@ private object NoUpdates : UpdateGateway {
     override val state: StateFlow<UpdateState> = MutableStateFlow(UpdateState.Idle)
     override val supported: Boolean = false
     override suspend fun checkIfDue() = Unit
+    override suspend fun checkNow() = Unit
     override suspend fun download() = Unit
     override fun install() = Unit
     override fun dismiss() = Unit

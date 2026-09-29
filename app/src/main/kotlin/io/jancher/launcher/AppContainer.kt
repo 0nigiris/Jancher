@@ -11,6 +11,7 @@ import io.jancher.launcher.platform.ShortcutSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * Ручная сборка зависимостей.
@@ -47,6 +48,14 @@ class AppContainer(context: Context) {
         source = InstalledAppsSource(appContext),
         store = configStore,
     )
+
+    /**
+     * Принудительная проверка из настроек: интервал здесь не применяется,
+     * иначе кнопка выглядела бы сломанной.
+     */
+    fun checkUpdatesNow() {
+        scope.launch { updates.checkNow() }
+    }
 
     private fun dp(value: Float): Int =
         TypedValue.applyDimension(
